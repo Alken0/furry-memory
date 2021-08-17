@@ -1,0 +1,5 @@
+{% extends "base/base" %}
+
+{% block content %}
+{% include "components/movie-list" %}
+{% endblock %}

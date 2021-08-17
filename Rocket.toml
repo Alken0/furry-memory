@@ -1,0 +1,4 @@
+[default.databases.diesel]
+# when changed here: also change in scripts!
+# tests use :memory: => defined in test_utils
+url = "crates/base/db/db.sqlite"

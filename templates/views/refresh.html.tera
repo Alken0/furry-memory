@@ -1,0 +1,18 @@
+{% import "base/macros" as macros %}
+{% extends "base/base" %}
+
+{% block content %}
+
+<form action="/files/refresh" method="post">
+	{{ macros::input(label="Path", type="text", name="path") }}
+
+	{{macros::select(
+            label="Data Type",
+            name="data_type",
+            options=["Video"]
+        )
+    }}
+
+	<input type="submit" value="Submit" class="btn btn-primary" />
+</form>
+{% endblock %}
