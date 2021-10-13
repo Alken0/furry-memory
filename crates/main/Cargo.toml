@@ -7,7 +7,20 @@ edition = "2018"
 
 [dependencies]
 base = { path = "../base" }
-files = { path = "../files" }
-movies = { path = "../movies" }
 
-rocket = "0.5.0-rc"
+rocket = "0.5.0-rc.1"
+rocket_dyn_templates = { version = "0.1.0-rc.1", features = ["tera"] }
+
+diesel = { version = "1.4.4", features = ["sqlite", "r2d2"] }
+diesel_migrations = "1.3"
+rocket_sync_db_pools = { version = "0.1.0-rc.1", features = [
+	"diesel_sqlite_pool",
+	"sqlite_pool",
+] }
+
+tokio = { version = "1.6", features = ["fs"] }
+mime_guess = "2.0"
+regex = "1.5"
+
+[dev-dependencies]
+test_util = { path = "../test_util" }
