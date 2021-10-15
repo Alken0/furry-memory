@@ -48,7 +48,7 @@ impl PathInfo {
             .first()
             .ok_or_else(|| {
                 Error::new(
-                    ErrorKind::Unsupported,
+                    ErrorKind::Other,
                     format!("could not guess MimeType (path: {})", self.path()),
                 )
             })
