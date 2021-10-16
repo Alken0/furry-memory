@@ -1,5 +1,6 @@
 use std::cmp::min;
 
+#[derive(Default, Clone, Copy)]
 pub struct Range {
     start: u64,
     offset: u64,

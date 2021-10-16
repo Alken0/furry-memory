@@ -1,10 +1,7 @@
 mod common;
 
-use common::server::test_rocket;
-use rocket::{
-    http::{ContentType, Status},
-    local::asynchronous::Client,
-};
+use common::server::test_client;
+use rocket::http::{ContentType, Status};
 use test_util::html::HTML;
 
 mod get {
@@ -12,7 +9,7 @@ mod get {
 
     #[rocket::async_test]
     async fn test() {
-        let client = Client::tracked(test_rocket()).await.unwrap();
+        let client = test_client().await;
         let response = client.get("/refresh").dispatch().await;
 
         assert_eq!(response.status(), Status::Ok);
@@ -28,7 +25,7 @@ mod post {
 
     #[rocket::async_test]
     async fn requires_form() {
-        let client = Client::tracked(test_rocket()).await.unwrap();
+        let client = test_client().await;
         let response = client.post("/refresh").dispatch().await;
 
         assert_eq!(response.status(), Status::NotFound);
@@ -36,7 +33,7 @@ mod post {
 
     #[rocket::async_test]
     async fn invalid_data() {
-        let client = Client::tracked(test_rocket()).await.unwrap();
+        let client = test_client().await;
         let response = client
             .post("/refresh")
             .header(ContentType::Form)
@@ -49,11 +46,11 @@ mod post {
 
     #[rocket::async_test]
     async fn redirects() {
-        let client = Client::tracked(test_rocket()).await.unwrap();
+        let client = test_client().await;
         let response = client
             .post("/refresh")
             .header(ContentType::Form)
-            .body("path=./test-data&data_type=Video")
+            .body("path=./tests/data&data_type=Video")
             .dispatch()
             .await;
 

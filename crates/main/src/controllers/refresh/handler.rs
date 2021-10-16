@@ -1,6 +1,6 @@
 use super::form::RefreshForm;
 use super::template::{RefreshTemplate, TemplateResponse, TemplateResult};
-use super::util::Updater;
+use super::update_service::UpdateService;
 use crate::Database;
 use rocket::form::{Contextual, Form};
 use rocket::response::Redirect;
@@ -17,9 +17,7 @@ pub async fn post(
 ) -> TemplateResult<Redirect> {
     let data = RefreshTemplate::validate(&form)?;
 
-    Updater::new(&(&data.path).into(), &data.data_type)
-        .clean_run(db)
-        .await;
+    UpdateService::new(&data.path.0).clean_run(db).await;
 
     return Ok(Redirect::to("/"));
 }

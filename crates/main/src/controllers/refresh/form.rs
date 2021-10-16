@@ -27,7 +27,7 @@ impl DataTypeField {
 }
 
 #[derive(Debug)]
-pub struct PathField(String);
+pub struct PathField(pub String);
 
 #[rocket::async_trait]
 impl<'r> form::FromFormField<'r> for PathField {
@@ -42,12 +42,6 @@ impl<'r> form::FromFormField<'r> for PathField {
 
     async fn from_data(field: form::DataField<'r, '_>) -> form::Result<'r, Self> {
         Err(field.unexpected().into())
-    }
-}
-
-impl From<&PathField> for PathBuf {
-    fn from(f: &PathField) -> Self {
-        std::path::PathBuf::from(f.0.to_owned())
     }
 }
 

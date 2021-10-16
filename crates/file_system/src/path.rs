@@ -10,8 +10,8 @@ impl From<String> for Path {
     }
 }
 
-impl From<PathBuf> for Path {
-    fn from(f: PathBuf) -> Self {
+impl From<&PathBuf> for Path {
+    fn from(f: &PathBuf) -> Self {
         let path = f.as_os_str().to_owned().to_string_lossy().to_string();
         Self(path)
     }
@@ -19,7 +19,7 @@ impl From<PathBuf> for Path {
 
 impl From<DirEntry> for Path {
     fn from(f: DirEntry) -> Self {
-        Path::from(f.path())
+        Path::from(&f.path())
     }
 }
 

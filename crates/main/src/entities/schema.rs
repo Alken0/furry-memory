@@ -1,6 +1,6 @@
 table! {
     files (id) {
-        id -> Binary,
+        id -> Integer,
         name -> Text,
         path -> Text,
         mime -> Text,

@@ -1,14 +1,18 @@
-use super::util::{Chunk, Range};
-use crate::entities::File;
+use super::chunk::Chunk;
+use super::range::Range;
+use crate::entities::file::FileRepo;
 use crate::Database;
-use base::types::Id;
 
 #[get("/stream/<id>")]
-pub async fn get(db: Database, id: Id, range: Option<Range>) -> Chunk {
-    let file = File::find_by_id(&db, id).await;
+pub async fn get(db: Database, id: i32, range: Option<Range>) -> Result<Chunk, std::io::Error> {
+    let file = FileRepo::find_by_id(&db, id).await;
+    let size = file.size()?;
 
-    return match range {
-        Some(range) => Chunk::new(&file, &range.apply_filesize(file.size)).await,
-        None => Chunk::new(&file, &Range { start: 0, end: 0 }).await,
+    let fs_file = file_system::file::File::new(file.path.to_owned(), size);
+
+    let response = match range {
+        Some(range) => Chunk::new(&fs_file, &range).await?,
+        None => Chunk::new(&fs_file, &Range::default()).await?,
     };
+    return Ok(response);
 }

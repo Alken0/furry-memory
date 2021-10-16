@@ -1,7 +1,7 @@
 mod common;
 
-use common::server::test_rocket;
-use rocket::{http::Status, local::asynchronous::Client};
+use common::server::test_client;
+use rocket::http::Status;
 use test_util::html::HTML;
 
 mod get {
@@ -9,7 +9,7 @@ mod get {
 
     #[rocket::async_test]
     async fn test() {
-        let client = Client::tracked(test_rocket()).await.unwrap();
+        let client = test_client().await;
         let response = client.get("/movies").dispatch().await;
 
         assert_eq!(response.status(), Status::Ok);

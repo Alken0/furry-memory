@@ -11,4 +11,4 @@ futures = "0.3"
 
 [dev-dependencies]
 test_util = { path = "../test_util" }
-tokio = { features = ["macros", "rt"] }
+tokio = { version = "*", features = ["macros", "rt"] }

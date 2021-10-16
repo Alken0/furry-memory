@@ -47,7 +47,7 @@ impl File {
         };
 
         return match regex_extension_match {
-            Some(s) => name_with_extension.replace(s.as_str(), "").to_owned(),
+            Some(s) => name_with_extension.replace(s.as_str(), ""),
             None => return name_with_extension.to_owned(),
         };
     }
@@ -72,7 +72,7 @@ impl File {
         file.seek(SeekFrom::Start(range.start())).await?;
         file.take(range.offset()).read_to_end(&mut buffer).await?;
 
-        return Ok(buffer.into());
+        return Ok(buffer);
     }
 }
 

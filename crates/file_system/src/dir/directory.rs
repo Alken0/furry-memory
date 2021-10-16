@@ -14,6 +14,10 @@ impl Directory {
         Self { path }
     }
 
+    pub fn path(&self) -> String {
+        self.path.to_owned()
+    }
+
     pub async fn elements(&self) -> Result<Vec<Entry>> {
         let mut entries = read_dir(&self.path).await?;
 
