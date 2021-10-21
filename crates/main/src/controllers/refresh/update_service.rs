@@ -1,18 +1,20 @@
 use crate::entities::file::{FileInsertForm, FileRepo};
 use crate::Database;
-use file_system::dir::{Directory, Entry};
+use file_system::dir::{Directory as FsDirectory, Entry};
+use file_system::file::File as FsFile;
 use rocket::futures::future::join_all;
 use rocket::tokio::task;
 use std::convert::TryInto;
 
 pub struct UpdateService {
-    to_check: Vec<Directory>,
+    to_check: Vec<FsDirectory>,
 }
 
 impl UpdateService {
     pub fn new(to_check: &str) -> Self {
+        println!("{}", to_check);
         Self {
-            to_check: vec![Directory::new(to_check.to_owned())],
+            to_check: vec![FsDirectory::new(to_check.to_owned())],
         }
     }
 
@@ -32,7 +34,7 @@ impl UpdateService {
             while !self.to_check.is_empty() {
                 let content = collect_content(&self.to_check).await;
                 self.to_check = content.dirs;
-                FileRepo::insert(&db, DirContent::inserts(content.files)).await;
+                FileRepo::insert(&db, into_file_insert_form(content.files)).await;
             }
         });
     }
@@ -40,21 +42,18 @@ impl UpdateService {
 
 #[derive(Default)]
 struct DirContent {
-    files: Vec<file_system::file::File>,
-    dirs: Vec<file_system::dir::Directory>,
+    files: Vec<FsFile>,
+    dirs: Vec<FsDirectory>,
 }
 
-impl DirContent {
-    fn inserts(files: Vec<file_system::file::File>) -> Vec<FileInsertForm> {
-        // todo fn(self) does not work because of ownership problems
-        files
-            .into_iter()
-            .filter_map(|f| f.try_into().ok())
-            .collect()
-    }
+fn into_file_insert_form(files: Vec<FsFile>) -> Vec<FileInsertForm> {
+    files
+        .into_iter()
+        .filter_map(|f| f.try_into().ok())
+        .collect()
 }
 
-async fn collect_content(elements: &[Directory]) -> DirContent {
+async fn collect_content(elements: &[FsDirectory]) -> DirContent {
     let async_checks = elements.iter().map(|e| e.elements());
 
     let entries: Vec<Entry> = join_all(async_checks)
@@ -73,60 +72,80 @@ async fn collect_content(elements: &[Directory]) -> DirContent {
     return output;
 }
 
-/*
 #[cfg(test)]
 mod test {
     use super::*;
     use test_util::functions::assert_vec_equal;
 
-    mod collect_content {
-        use super::*;
+    #[rocket::async_test]
+    async fn files_and_dirs() {
+        let result = collect_content(&vec![FsDirectory::new("./tests/data".to_owned())]).await;
+        let expected_files: Vec<FsFile> = into_fsfile(&vec![
+            "./tests/data/test-file.txt",
+            "./tests/data/test-file.yml",
+        ])
+        .await;
+        let expected_dirs: Vec<FsDirectory> = into_fsdir(&vec![
+            "./tests/data/dir1",
+            "./tests/data/dir2",
+            "./tests/data/dir3",
+        ])
+        .await;
 
-        #[rocket::async_test]
-        async fn correct_return_position() {
-            // test: read dir -> identify all elements as to be checked
-            let result =
-                collect_content(&vec![PathBuf::from("./tests/data")], &DataTypeField::Test).await;
-            let expected: ToCheckPaths = vec![
-                PathBuf::from("./tests/data/test-file.txt"),
-                PathBuf::from("./tests/data/test-file.yml"),
-            ];
+        assert_vec_equal(&result.files, &expected_files, "did not find all files");
+        assert_vec_equal(&result.dirs, &expected_dirs, "did not find all dirs");
+    }
 
-            assert!(result.0.is_empty());
-            assert_vec_equal(&result.1, &expected, "could not find elements in dir");
+    #[rocket::async_test]
+    async fn multiple_dirs_as_input() {
+        let input_dirs: Vec<FsDirectory> = into_fsdir(&vec![
+            "./tests/data/dir1",
+            "./tests/data/dir2",
+            "./tests/data/dir3",
+        ])
+        .await;
+        let result = collect_content(&input_dirs).await;
+        let expected_files: Vec<FsFile> = into_fsfile(&vec![
+            "./tests/data/dir1/test1.txt",
+            "./tests/data/dir2/test2.txt",
+            "./tests/data/dir3/test3.txt",
+        ])
+        .await;
 
-            // test: read files: identify input as files and return them correctly
-            let mut expected_filepaths: FilePaths = Vec::new();
-            for e in &expected {
-                let path_info = MetaInfo::new(&PathInfo::new(e)).await.unwrap();
-                expected_filepaths.push(File::try_from(&path_info).unwrap())
-            }
-            let result = collect_content(&expected, &DataTypeField::Test).await;
-            assert!(result.1.is_empty());
-            assert_vec_equal(
-                &result.0,
-                &expected_filepaths,
-                "could not identify elements as files",
-            );
+        assert_vec_equal(&result.files, &expected_files, "did not find all files");
+        assert_vec_equal(&result.dirs, &Vec::new(), "found non existing dirs");
+    }
+
+    #[rocket::async_test]
+    async fn non_existing_dir() {
+        let dir = vec![FsDirectory::new("./tests/data/not_found".to_owned())];
+        let result = collect_content(&dir).await;
+        assert!(result.files.is_empty());
+        assert!(result.dirs.is_empty());
+    }
+
+    #[rocket::async_test]
+    async fn empty_input() {
+        let result = collect_content(&Vec::new()).await;
+        assert!(result.files.is_empty());
+        assert!(result.dirs.is_empty());
+    }
+
+    async fn into_fsfile(paths: &[&str]) -> Vec<FsFile> {
+        let mut output = Vec::new();
+        for p in paths {
+            let file = FsFile::new_from_path(p).await.unwrap();
+            output.push(file);
         }
+        return output;
+    }
 
-        #[rocket::async_test]
-        async fn terminates() {
-            // ATTENTION: fails if folder-depth is more than 5
-
-            // test: empty input returns empty result
-            assert_eq!(
-                (Vec::new(), Vec::new()),
-                collect_content(&Vec::new(), &DataTypeField::Video).await
-            );
-
-            // test: to_check will turn empty
-            let mut to_check = vec![PathBuf::from("./tests/data")];
-            for _ in 0..5 {
-                to_check = collect_content(&to_check, &DataTypeField::Video).await.1;
-            }
-            assert!(to_check.is_empty());
+    async fn into_fsdir(paths: &[&str]) -> Vec<FsDirectory> {
+        let mut output = Vec::new();
+        for p in paths {
+            let dir = FsDirectory::new(p.to_string());
+            output.push(dir);
         }
+        return output;
     }
 }
- */

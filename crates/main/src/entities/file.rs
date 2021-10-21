@@ -79,7 +79,7 @@ impl TryFrom<file_system::file::File> for FileInsertForm {
 
     fn try_from(value: file_system::file::File) -> Result<Self, Self::Error> {
         Ok(Self {
-            mime: value.mime().unwrap_or_default(),
+            mime: value.mime()?,
             name: value.name(),
             path: value.path(),
             size: try_convert_size(&value)?,

@@ -1,6 +1,7 @@
 use super::range::Range;
 use crate::error;
 use regex::Regex;
+use tokio::fs::metadata;
 use tokio::fs::File as TokioFile;
 use tokio::io::{AsyncReadExt, AsyncSeekExt, Result, SeekFrom};
 
@@ -13,8 +14,16 @@ pub struct File {
 }
 
 impl File {
+    /// size is only used to return f.size() not asynchroniously
     pub fn new(path: String, size: u64) -> Self {
         Self { path, size }
+    }
+
+    pub async fn new_from_path(path: &str) -> Result<Self> {
+        Ok(Self {
+            path: path.to_owned(),
+            size: metadata(path).await?.len(),
+        })
     }
 
     pub fn path(&self) -> String {
@@ -64,9 +73,9 @@ impl File {
         };
     }
 
-    /// chunk-size = range.offset if file is large enough
+    /// "chunk-size == range.offset" if file is large enough
     pub async fn chunk(&self, range: &Range) -> Result<Bytes> {
-        let mut buffer: Bytes = Bytes::new();
+        let mut buffer = Bytes::new();
         let mut file = TokioFile::open(self.path.to_owned()).await?;
 
         file.seek(SeekFrom::Start(range.start())).await?;

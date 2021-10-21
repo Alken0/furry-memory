@@ -15,11 +15,16 @@ impl Range {
 
     /// returns start + offset or None if the number is too big
     pub fn end(&self) -> Option<u64> {
-        self.0.start().checked_add(self.0.offset())
+        let offset = self.0.offset().checked_sub(1).unwrap_or(0);
+        self.0.start().checked_add(offset)
     }
 
     pub fn range(&self) -> FsRange {
         self.0
+    }
+
+    pub fn apply_file_size(&self, file_size: u64) -> Range {
+        Range(self.0.apply_filesize(file_size))
     }
 }
 
@@ -67,13 +72,13 @@ mod from_request {
         let client = mock_client().await;
         let request = client
             .post("")
-            .header(Header::new("Range", "0-49/50"))
+            .header(Header::new("Range", "5-49/50"))
             .body("");
         let outcome = Range::from_request(&request).await;
 
         assert!(outcome.is_success());
         let outcome = outcome.succeeded().unwrap();
-        assert_eq!(outcome.start(), 0);
+        assert_eq!(outcome.start(), 5);
         assert_eq!(outcome.end().unwrap(), 49);
     }
 

@@ -16,9 +16,10 @@ pub struct Chunk {
 
 impl Chunk {
     pub async fn new(file: &FsFile, range: &Range) -> Result<Self> {
+        let range = range.apply_file_size(file.size());
         Ok(Self {
             start: range.start(),
-            end: range.end().unwrap_or_default(),
+            end: range.end().unwrap_or(0),
             file_size: file.size(),
             mime: file.mime()?,
             content: file.chunk(&range.range()).await?,
@@ -37,7 +38,7 @@ impl<'r> Responder<'r, 'static> for Chunk {
                 "Content-Range",
                 format!("bytes {}-{}/{}", self.start, self.end, self.file_size),
             ))
-            .sized_body(self.content.len(), Cursor::new(self.content))
+            .sized_body(None, Cursor::new(self.content))
             .ok()
     }
 }

@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<form action="/files/refresh" method="post">
+<form action="/refresh" method="post">
 	{{ macros::input(label="Path", type="text", name="path") }}
 
 	{{macros::select(

@@ -14,18 +14,6 @@ pub enum DataTypeField {
     Test,
 }
 
-impl DataTypeField {
-    pub fn valid(&self, path: &str) -> bool {
-        match *self {
-            DataTypeField::Video => {
-                path.ends_with(".mp4") || path.ends_with("mpg") || path.ends_with("webm")
-            }
-            #[cfg(test)]
-            DataTypeField::Test => path.ends_with(".txt") || path.ends_with(".yml"),
-        }
-    }
-}
-
 #[derive(Debug)]
 pub struct PathField(pub String);
 

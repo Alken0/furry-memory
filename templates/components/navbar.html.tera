@@ -10,7 +10,7 @@
 	<div class="collapse navbar-collapse mr-2" id="navbarNav">
 		<ul class="navbar-nav align-items-end flex-column">
 			<li class="nav-item">
-				<a class="nav-link" href="/files/refresh">Refresh Data</a>
+				<a class="nav-link" href="/refresh">Refresh Data</a>
 			</li>
 		</ul>
 	</div>
