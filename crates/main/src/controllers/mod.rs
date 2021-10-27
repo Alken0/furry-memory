@@ -1,8 +1,9 @@
+mod files;
 mod index;
-mod movies;
 mod refresh;
 mod r#static;
 mod stream;
+mod videos;
 
 use rocket::fairing::AdHoc;
 
@@ -16,7 +17,9 @@ pub fn stage() -> AdHoc {
                 stream::get,
                 refresh::get,
                 refresh::post,
-                movies::get
+                videos::list,
+                videos::detail,
+                files::list
             ],
         )
     })

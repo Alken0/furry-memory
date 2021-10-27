@@ -1,6 +1,0 @@
-{# requires movie: File #}
-
-<li class="list-group-item">
-	<p>{{movie.name}}</p>
-	<a class="btn btn-primary" href="/stream/{{movie.id}}">Watch</a>
-</li>

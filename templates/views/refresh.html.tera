@@ -4,15 +4,15 @@
 {% block content %}
 
 <form action="/refresh" method="post">
-	{{ macros::input(label="Path", type="text", name="path") }}
+    {{ macros::input(label="Path", type="text", name="path") }}
 
-	{{macros::select(
+    {{macros::select(
             label="Data Type",
             name="data_type",
             options=["Video"]
         )
     }}
 
-	<input type="submit" value="Submit" class="btn btn-primary" />
+    <input type="submit" value="Submit" class="btn btn-primary" />
 </form>
 {% endblock %}
