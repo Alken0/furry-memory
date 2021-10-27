@@ -64,6 +64,17 @@ impl FileRepo {
         .unwrap()
     }
 
+    pub async fn find_all_audios(db: &Database) -> Vec<File> {
+        db.run(move |conn| {
+            files::table
+                .filter(files::mime.like("audio/%"))
+                .order_by(files::name.asc())
+                .load(conn)
+        })
+        .await
+        .unwrap()
+    }
+
     pub async fn insert(db: &Database, files: Vec<FileInsertForm>) -> usize {
         db.run(move |conn| {
             diesel::insert_into(files::table)

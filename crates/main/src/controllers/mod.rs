@@ -1,3 +1,4 @@
+mod audios;
 mod files;
 mod index;
 mod refresh;
@@ -19,7 +20,9 @@ pub fn stage() -> AdHoc {
                 refresh::post,
                 videos::list,
                 videos::detail,
-                files::list
+                files::list,
+                audios::list,
+                audios::detail
             ],
         )
     })

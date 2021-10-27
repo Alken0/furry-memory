@@ -1,17 +1,29 @@
-<nav class="navbar navbar-dark bg-dark mb-4">
-    <a class="navbar-brand text-danger font-weight-bold" href="/">
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <a class="navbar-brand text-danger font-weight-bold unselectable" href="/">
         NETFLEX
     </a>
 
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#my-navbar"
+        aria-controls="my-navbar" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse mr-2" id="navbarNav">
-        <ul class="navbar-nav align-items-end flex-column">
+
+    <div class="collapse navbar-collapse" id="my-navbar">
+        <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="/refresh">Refresh Data</a>
+                <a class="nav-link" href="/videos">Videos</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/audios">Audios</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/files">Files</a>
+            </li>
+
         </ul>
+
+        <span class="navbar-nav">
+            <a href="/refresh" class="nav-link bi-gear-fill" style="padding: 0; font-size: 1.3rem; "></a>
+        </span>
     </div>
 </nav>
