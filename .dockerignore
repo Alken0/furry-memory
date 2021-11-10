@@ -1,0 +1,5 @@
+.vscode
+crates/*/tests
+target
+scripts
+Dockerfile

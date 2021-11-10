@@ -2,3 +2,6 @@
 # when changed here: also change in scripts!
 # tests use :memory: => defined in test_utils
 url = "diesel/db.sqlite"
+
+[production.databases.diesel]
+url = "db.sqlite"
